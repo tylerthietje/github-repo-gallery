@@ -1,12 +1,17 @@
 // targets div with class overview
 const overview = document.querySelector(".overview");
+// my GitHub username
 const username = "tylerthietje";
+// ul where repos will be added after API call fetches the data
 const repoList = document.querySelector(".repo-list");
+// section where all fetched repos will be displayed in an ul
 const repos = document.querySelector(".repos");
+// 
 const repoData = document.querySelector(".repo-data");
 const backToGallery = document.querySelector(".view-repos");
 const filterInput = document.querySelector(".filter-repos");
 
+// API call to pull users infomation
 const getUser = async function () {
     const res = await fetch(`https://api.github.com/users/${username}`);
     const data = await res.json();
@@ -15,6 +20,7 @@ const getUser = async function () {
 };
 getUser();
 
+// Displays users information in the top banner of the page
 const displayUserInfo = function (data){
     const div =  document.createElement("div");
     div.classList.add("user-info")
@@ -33,6 +39,7 @@ const displayUserInfo = function (data){
   getRepos(username);
 };
 
+// API call to pull users repos (up to 100) and sort them by most recently updated
 const getRepos = async function () {
     const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
     const repos = await res.json();
@@ -40,7 +47,7 @@ const getRepos = async function () {
     getRepoInfo(repos);
 };
 
-// Function that displays all repos
+// Creates <li>s for each repo and displays them on the page under the user's information
 const getRepoInfo = function (repos) {
     filterInput.classList.remove("hide");
     for (const repo of repos) {
@@ -51,6 +58,7 @@ const getRepoInfo = function (repos) {
     }
 };
 
+// click event to opern a specific repo and see details about it 
 repoList.addEventListener("click", function (e) {
     if (e.target.matches("h3")) {
         const repoName = e.target.innerText;
@@ -58,6 +66,7 @@ repoList.addEventListener("click", function (e) {
     }
 });
 
+// API call to pull specific information about the clicked on repo from click event above
 const specificRepoInfo = async function (repoName) {
     const getSpecificInfo = await fetch(`https://api.github.com/repos/${username}/${repoName}`);
     const repoInfo = await getSpecificInfo.json();
@@ -67,7 +76,7 @@ const specificRepoInfo = async function (repoName) {
     const fetchLanguages = await fetch(repoInfo.languages_url);
     const languageData = await fetchLanguages.json();
 
-    // Make a list of languages
+    // Make a list of languages used in each repo
     const languages = [];
     for (const language in languageData) {
         languages.push(language);
@@ -76,6 +85,7 @@ const specificRepoInfo = async function (repoName) {
     displayRepoInfo(repoInfo, languages);
 };
 
+// displays details of clicked on repo as well as what languages were used in that repo
 const displayRepoInfo = function (repoInfo, languages) {
     repoData.innerHTML = "";
     const repoDataDiv = document.createElement("div");
@@ -92,6 +102,7 @@ const displayRepoInfo = function (repoInfo, languages) {
     backToGallery.classList.remove("hide");
 };
 
+// event listener for the "back to repo gallery" button that appears on repo details screen
 backToGallery.addEventListener("click", function () {
     repos.classList.remove("hide");
     repoData.classList.add("hide");
@@ -99,7 +110,7 @@ backToGallery.addEventListener("click", function () {
 
 });
 
-// Dynamic search
+// creates the Dynamic search functionality for the search input field
 filterInput.addEventListener("input", function (e) {
     const searchValue = e.target.value;
     // selects all elements with class of repo
