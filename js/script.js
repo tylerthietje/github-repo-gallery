@@ -4,6 +4,8 @@ const username = "tylerthietje";
 const repoList = document.querySelector(".repo-list");
 const repos = document.querySelector(".repos");
 const repoData = document.querySelector(".repo-data");
+const backToGallery = document.querySelector(".view-repos");
+const filterInput = document.querySelector(".filter-repos");
 
 const getUser = async function () {
     const res = await fetch(`https://api.github.com/users/${username}`);
@@ -28,22 +30,21 @@ const displayUserInfo = function (data){
   </div> 
   `;
   overview.append(div);
-  getRepos()
+  getRepos(username);
 };
 
 const getRepos = async function () {
-    const res = await fetch(`
-        https://api.github.com/users/${username}/repos?sort=updated&per_page=100
-    `);
+    const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
     const repos = await res.json();
     // console.log(repos);
     getRepoInfo(repos);
 };
 
+// Function that displays all repos
 const getRepoInfo = function (repos) {
-    for (let repo of repos) {
+    filterInput.classList.remove("hide");
+    for (const repo of repos) {
         const repoItem = document.createElement("li");
-        //const h3 = document.createElement("h3");
         repoItem.classList.add("repo");
         repoItem.innerHTML = `<h3>${repo.name}</h3>`;
         repoList.append(repoItem);
@@ -88,4 +89,32 @@ const displayRepoInfo = function (repoInfo, languages) {
     repoData.append(repoDataDiv);
     repoData.classList.remove("hide");
     repos.classList.add("hide");
+    backToGallery.classList.remove("hide");
 };
+
+backToGallery.addEventListener("click", function () {
+    repos.classList.remove("hide");
+    repoData.classList.add("hide");
+    backToGallery.classList.add("hide");
+
+});
+
+// Dynamic search
+filterInput.addEventListener("input", function (e) {
+    const searchValue = e.target.value;
+    // selects all elements with class of repo
+    const repos = document.querySelectorAll(".repo");
+    // converts all input characters to lowercase
+    const searchValueLowercase = searchValue.toLowerCase();
+
+    for (const repo of repos) {
+        // assigns the lowercase value of each repo to this variable
+        const repoLowerText = repo.innerText.toLowerCase();
+        if (repoLowerText.includes(searchValueLowercase)) {
+            repo.classList.remove("hide");
+        } else {
+            repo.classList.add("hide");
+        };
+
+    }
+});
